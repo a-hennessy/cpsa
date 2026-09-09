@@ -3,7 +3,7 @@ WITH
         SELECT
             fsc.claim_id,
             fsc.sub_claim_id,
-
+            dc.contract_valid_from AS inception_date,
             dc.contract_origin_and_generation AS policy_number,
             UPPER(dpp.party_name) AS client_name,
             UPPER(dpb.party_name) AS broker_name,
@@ -47,11 +47,13 @@ WITH
     ,claims_agg_indemnity AS (
         SELECT
             mc.policy_number,
+            mc.inception_date,
             mc.client_name,
             mc.broker_name,
             mc.claim_number,
             mc.damage_date,
             mc.reported_date,
+            COALESCE(ANY_VALUE(ct.claim_category), 'Unknown & Other') AS claim_cause,
             mc.claim_status,
             ROUND(SUM(COALESCE(it.indemnity_paid, 0)), 2) AS total_indemnity_paid,
             ROUND(SUM(COALESCE(it.indemnity_outstanding, 0)), 2) AS total_future_indemnity,
@@ -61,8 +63,15 @@ WITH
         LEFT JOIN indemnity_transactions AS it
             ON mc.claim_id = it.claim_id
             AND mc.sub_claim_id = it.sub_claim_id
+        LEFT JOIN `prj-p-big-query-f190.datamart_reporting.claims` AS clm
+            ON mc.sub_claim_id = clm.sub_claim_id
+        LEFT JOIN `prj-t-big-query-69e0.uk_analytics.claim_types_motor` AS ct
+            ON (ct.match_type = 'EXACT' AND UPPER(clm.claim_cause) = ct.pattern)
+            OR (ct.match_type = 'LIKE' AND UPPER(clm.claim_cause) LIKE ct.pattern)
+            OR (ct.match_type = 'REGEXP' AND REGEXP_CONTAINS(UPPER(clm.claim_cause), ct.pattern))
         GROUP BY
             mc.policy_number,
+            mc.inception_date,
             mc.client_name,
             mc.broker_name,
             mc.claim_number,
@@ -78,3 +87,4 @@ SELECT
     *
 FROM
     claims_agg_indemnity
+-- 112,623 count

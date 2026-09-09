@@ -7,3 +7,6 @@
 6,   -- TPI - General Damages (pain & suffering compensation)
 92,  -- TPI - Special Damages (financial loss compensation)
 93   -- TPI - CRU/NHS (statutory benefit recovery & hospital charges)
+
+
+prj-t-analytics-uk-7e3a.uk_data_science.ajh_claims_motor_indemnity
