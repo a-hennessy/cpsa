@@ -1,9 +1,14 @@
+
+-- create a list of all claims with relevant metadata (combining subclaims) and calculate the indemnity spend
+-- categorise into broad categories as per indmenity_spend_groups.txt
+
 WITH
     motor_claims AS (
         SELECT
             fsc.claim_id,
             fsc.sub_claim_id,
             dc.contract_valid_from AS inception_date,
+            dc.contract_valid_to AS expiry_date,
             dc.contract_origin_and_generation AS policy_number,
             UPPER(dpp.party_name) AS client_name,
             UPPER(dpb.party_name) AS broker_name,
@@ -48,6 +53,7 @@ WITH
         SELECT
             mc.policy_number,
             mc.inception_date,
+            mc.expiry_date,
             mc.client_name,
             mc.broker_name,
             mc.claim_number,
@@ -72,6 +78,7 @@ WITH
         GROUP BY
             mc.policy_number,
             mc.inception_date,
+            mc.expiry_date,
             mc.client_name,
             mc.broker_name,
             mc.claim_number,
@@ -87,4 +94,5 @@ SELECT
     *
 FROM
     claims_agg_indemnity
+ORDER BY policy_number
 -- 112,623 count

@@ -1,3 +1,5 @@
+-- aggregate all_claims data into policy level information
+
 WITH
     individual_claims AS (
         SELECT
@@ -74,7 +76,9 @@ WITH
             ic.broker_name,
             vy.vehicle_years,
             SUM(total_indemnity_paid) AS indemnity_spend,
-            SUM(total_future_indemnity) AS indemnity_reserve
+            SUM(total_future_indemnity) AS indemnity_reserve,
+            AVG(EXTRACT(DAY FROM (ic.reported_date - ic.damage_date))) AS fnol,
+            COUNT(*) AS claim_count
         FROM
             individual_claims AS ic
         LEFT JOIN
