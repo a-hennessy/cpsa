@@ -76,6 +76,7 @@ WITH
             ic.expiry_date,
             ic.client_name,
             ic.broker_name,
+            CASE WHEN ic.party_nace = '' THEN NULL ELSE ic.party_nace END AS nace,
             ic.claim_cause,
             vy.vehicle_years,
             SUM(total_indemnity_paid) AS indemnity_spend,
@@ -94,8 +95,20 @@ WITH
             expiry_date,
             client_name,
             broker_name,
+            nace,
             claim_cause,
             vehicle_years
     )
 
-SELECT * FROM client_data ORDER BY policy_number
+    ,client_data_metadata AS (
+        SELECT
+            cd.*,
+            nc.motor_industry AS industry
+        FROM
+            client_data AS cd
+        LEFT JOIN
+            `prj-p-analytics-uk-9917.uk_analytics.uk_nace_code_lookup` AS nc
+            ON cd.nace = CAST(nc.nace_original AS STRING)
+    )
+
+SELECT * FROM client_data_metadata ORDER BY policy_number

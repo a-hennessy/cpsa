@@ -12,6 +12,7 @@ WITH
             dc.contract_origin_and_generation AS policy_number,
             UPPER(dpp.party_name) AS client_name,
             UPPER(dpb.party_name) AS broker_name,
+            dpp.party_nace,
             CASE
                 WHEN UPPER(dcl.claim_source) = 'DWH' THEN COALESCE(CAST(dcl.claim_external_id AS STRING), CAST(dcl.claim_id AS STRING))
                 ELSE CAST(dcl.claim_id AS STRING)
@@ -56,6 +57,7 @@ WITH
             mc.expiry_date,
             mc.client_name,
             mc.broker_name,
+            mc.party_nace,
             mc.claim_number,
             mc.damage_date,
             mc.reported_date,
@@ -81,6 +83,7 @@ WITH
             mc.expiry_date,
             mc.client_name,
             mc.broker_name,
+            mc.party_nace,
             mc.claim_number,
             mc.damage_date,
             mc.reported_date,
