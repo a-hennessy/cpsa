@@ -9,7 +9,8 @@ WITH
                 WHEN 'Property Damage insurance' THEN 'Property'
                 ELSE null
             END AS lob,
-            SUM(claim_current_net_paid) AS total_paid
+            SUM(claim_current_net_paid) AS total_paid,
+            count(*) AS total_claims
         FROM
             `prj-p-big-query-f190.datamart_analytics.dim_claim`
         WHERE contract_segment = 'Commercial'
@@ -25,7 +26,8 @@ WITH
                 WHEN 'Property Damage' THEN 'Property'
                 ELSE null
             END AS lob,
-            SUM(contract_gross_period_premium) AS gep
+            SUM(contract_gross_period_premium) AS gep,
+            count(*) as total_contract
         FROM
             `prj-p-big-query-f190.datamart_analytics.dim_contract`
         WHERE contract_segment = 'Commercial'
@@ -37,7 +39,8 @@ SELECT
     clm.lob,
     clm.total_paid AS claims_paid,
     gwp.gep AS earned_premium,
-    clm.total_paid/gwp.gep AS claims_per_premium
+    clm.total_paid/gwp.gep AS claims_per_premium,
+    clm.total_claims, gwp.total_contract
 FROM
     claim_by_lob AS clm
 LEFT JOIN
